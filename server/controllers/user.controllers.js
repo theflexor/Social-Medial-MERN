@@ -1,9 +1,9 @@
 import { UserModel } from '../models/UserModel.js'
 
-export const getUser = async () => {
+export const getUser = async (req, res) => {
     try {
         const { id } = req.params
-        const user = await User.findById(id)
+        const user = await UserModel.findById(id)
         res.status(200).json(user)
     } catch (err) {
         res.status(404).json({ message: err.message })
@@ -12,28 +12,30 @@ export const getUser = async () => {
 
 export const getUserFriends = async (req, res) => {
     try {
-        const { id } = req.params
-        const user = await UserModel.findById(id)
-
-        const friends = await Promise.all(
-            user.friends.map((id) => User.findById(id)),
-        )
-
-        const formatFriends = friends.map(
-            ({ password, ...userdata }) => userdata,
-        )
-        res.status(200).json(formatFriends)
+      const { id } = req.params;
+      const user = await UserModel.findById(id);
+  
+      const friends = await Promise.all(
+        user.friends.map((id) => UserModel.findById(id))
+      );
+      const formattedFriends = friends.map(
+        ({ _id, firstName, lastName, occupation, location, picturePath }) => {
+          return { _id, firstName, lastName, occupation, location, picturePath };
+        }
+      );
+      res.status(200).json(formattedFriends);
     } catch (err) {
-        res.status(404).json({ message: err.message })
+      res.status(404).json({ message: err.message });
     }
-}
+  };
 
 // UPDATE
 
-export const addRemoveFriend = async () => {
+export const addRemoveFriend = async (req, res) => {
     try {
         const { id, friendId } = req.params
-        const user = UserModel.findByOne(id)
+        console.log(id, friendId)
+        const user = await UserModel.findById(id)
         const friend = await UserModel.findById(friendId)
         if (user.friends.includes(friendId)) {
             user.friends = user.friends.filter((id) => id !== friendId)
@@ -44,7 +46,33 @@ export const addRemoveFriend = async () => {
         }
         await user.save()
         await friend.save()
-    } catch (error) {
-        res.status(404).json({ message: error.message })
+
+        const friends = await Promise.all(
+            user.friends.map((id) => UserModel.findById(id)),
+        )
+        const formattedFriends = friends.map(
+            ({
+                _id,
+                firstName,
+                lastName,
+                occupation,
+                location,
+                picturePath,
+            }) => {
+                return {
+                    _id,
+                    firstName,
+                    lastName,
+                    occupation,
+                    location,
+                    picturePath,
+                }
+            },
+        )
+
+        res.status(200).json(formattedFriends)
+    } catch (err) {
+        console.log(err.message)
+        res.status(404).json({ message: err.message })
     }
 }

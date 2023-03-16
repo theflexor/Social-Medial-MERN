@@ -10,8 +10,8 @@ export const verifyToken = async (req, res, next) => {
         }
 
         // remove Bearer text
-        if (token.startWidth('Bearer ')) {
-            token = token.slice(7, tokens.length).trimLeft()
+        if (token.startsWith('Bearer ')) {
+            token = token.slice(7, token.length).trimLeft()
         }
 
         // checking the validity of the token

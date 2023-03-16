@@ -2,7 +2,7 @@ import { PostModel } from '../models/Post.model.js'
 import { UserModel } from '../models/UserModel.js'
 
 // CREATE
-export const createPost = async () => {
+export const createPost = async (req, res) => {
     try {
         const { userId, description, picturePath } = req.body
         const user = await UserModel.findById(userId)
@@ -28,7 +28,7 @@ export const createPost = async () => {
 }
 
 // GET
-export const getFeedPosts = async () => {
+export const getFeedPosts = async (req, res) => {
     try {
         const post = await PostModel.find()
         res.status(200).json(post)
@@ -40,13 +40,13 @@ export const getFeedPosts = async () => {
 export const getUserPosts = async (req, res) => {
     try {
         const { userId } = req.params
-        const post = await Post.find({ userId })
+        const post = await PostModel.find({ userId })
         res.status(200).json(post)
     } catch (err) {
         res.status(404).json({ message: err.message })
     }
 }
-export const likePost = async () => {
+export const likePost = async (req, res) => {
     try {
         const { id } = req.params
         const { userId } = req.body

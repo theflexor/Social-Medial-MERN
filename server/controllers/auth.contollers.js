@@ -54,11 +54,13 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials.' })
         }
-
+        
         // create token
         const token = jwt.sign({ id: user._id }, process.env.SECRED_KEY)
-        res.status(200).json({ userDate, token })
+        delete user["password"]
+        res.status(200).json({ user, token })
     } catch (err) {
+
         res.status(500).json({ message: err.message })
     }
 }
